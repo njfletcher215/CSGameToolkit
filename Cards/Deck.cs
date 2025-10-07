@@ -20,6 +20,10 @@ public class Deck<T> {
 
     public int handSize;
 
+    public IReadOnlyList<T> LibrarySnapshot => this.library.ToList();
+    public IReadOnlyList<T> HandSnapshot => this.hand.ToList();
+    public IReadOnlyList<T> GraveyardSnapshot => this.graveyard.ToList();
+
     public Deck(IEnumerable<T> deckList, int handSize = 5) {
         this.deckList = new List<T>();
         foreach (T card in deckList) this.deckList.Add(card);
