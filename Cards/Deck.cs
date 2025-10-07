@@ -48,39 +48,42 @@ public class Deck<T> {
     ///     '99' would place the card on the top of the library or graveyard, or the right of the hand, and
     ///     '-99' would place the card on the bottom of the library or graveyard, or the left of the hand.
     /// </param>
-    public void Add(T card, bool addToDeckList = true, Deck.Zone zone = Deck.Zone.LIBRARY, int index = 0) {
+    public void Add(T card, bool addToDeckList = true, Deck<T>.Zone zone = Deck<T>.Zone.LIBRARY, int index = 0) {
         if (addToDeckList) this.deckList.Add(card);
 
         List<T> zoneCards;
         switch (zone) {
-            case (Deck.Zone.LIBRARY):
+            case (Deck<T>.Zone.LIBRARY):
                 zoneCards = this.library.ToList();      // NOTE: copy
                 break;
-            case (Deck.Zone.HAND):
+            case (Deck<T>.Zone.HAND):
                 zoneCards = this.hand;                  // NOTE: reference
                 break;
-            case (Deck.Zone.GRAVEYARD):
+            case (Deck<T>.Zone.GRAVEYARD):
                 zoneCards = this.graveyard.ToList();    // NOTE: copy
                 break;
             default:
+                throw new ArgumentException("Zone is invalid for this deck.");  // this should never happen
                 break;
         }
 
         if (index >= 0) {
-            index = min(index, zoneCards.Count);
+            index = Math.Min(index, zoneCards.Count);
         } else {
-            index = max(index, -1 * zoneCards.Count);
+            index = Math.Max(index, -1 * zoneCards.Count);
             index = zoneCards.Count + index + 1;  // '+ 1' accounts for the fact the element will be inserted *before* the index
         }
 
         zoneCards.Insert(index, card);
 
         switch (zone) {
-            case (Deck.Zone.LIBRARY):
-                this.library = zoneCards.ToStack();
-            // case (Deck.Zone.HAND): is not needed, since the hand could be used as reference and not as a copy
-            case (Deck.Zone.GRAVEYARD):
-                this.graveyard.ToStack();
+            case (Deck<T>.Zone.LIBRARY):
+                this.library = new Stack<T>(zoneCards);
+                break;
+            // case (Deck<T>.Zone.HAND): is not needed, since the hand could be used as reference and not as a copy
+            case (Deck<T>.Zone.GRAVEYARD):
+                this.graveyard = new Stack<T>(zoneCards);
+                break;
             default:
                 break;
         }
@@ -123,21 +126,7 @@ public class Deck<T> {
     /// Draw cards from the library (adding them to the hand) until the hand is full.
     /// </summary>
     public void DrawHand() {
-        while (this.hand.Count < this.maxHandSize) this.Draw();
-    }
-
-    /// <summary>
-    /// Play a card, if possible (ie the player has enough resources).
-    /// Perform its effect, then discard it.
-    /// </summary>
-    /// <param name="card">The card to play.</param>
-    /// <returns><c>true</c> if the card could be played, else <c>false</c></returns>
-    public bool PlayCard(T card) {
-        if (card.Cost > this.Mana) return false;
-        this.Mana -= card.Cost;
-        card.Play();
-        this.Discard(card);
-        return true;
+        while (this.hand.Count < this.handSize) this.Draw();
     }
 
     /// <summary>
@@ -155,26 +144,27 @@ public class Deck<T> {
     ///     Defaults to null.
     /// </param>
     /// <returns><c>true</c> if the card could be removed (ie it existed in the given zone), else <c>false</c></returns>
-    public bool Remove(T card, bool removeFromDeckList, Deck.Zone? zone = null) {
+    public bool Remove(T card, bool removeFromDeckList, Deck<T>.Zone? zone = null) {
         if (removeFromDeckList) this.deckList.Remove(card);
 
         // check the hand first because it is the easiest
-        if ((zone == null || zone == Deck.Zone.HAND)
+        if ((zone == null || zone == Deck<T>.Zone.HAND)
             && this.hand.Remove(card)) return true;
 
         // then check the graveyard
-        if (zone == null || zone == Deck.Zone.GRAVEYARD) {
-            List graveyardList = this.graveyard.ToList();
+        if (zone == null || zone == Deck<T>.Zone.GRAVEYARD) {
+            List<T> graveyardList = this.graveyard.ToList();
             if (graveyardList.Remove(card)) {
-                this.graveyard = graveyardList.ToStack();
+                this.graveyard = new Stack<T>(graveyardList);
                 return true;
             }
+        }
 
         // then check the library
-        if (zone == null || zone == Deck.Zone.LIBRARY) {
-            List libraryList = this.library.ToList();
+        if (zone == null || zone == Deck<T>.Zone.LIBRARY) {
+            List<T> libraryList = this.library.ToList();
             if (libraryList.Remove(card)) {
-                this.library = libraryList.ToStack();
+                this.library = new Stack<T>(libraryList);
                 return true;
             }
         }
@@ -211,7 +201,7 @@ public class Deck<T> {
     /// Shuffle the given stack (pile).
     /// </summary>
     /// <param name="stack">The stack to be shuffled.</param>
-    public static void Shuffle<T>(ref Stack<T> stack) {
+    public static void Shuffle(ref Stack<T> stack) {
         if (stack == null) throw new ArgumentNullException(nameof(stack));
 
         List<T> list = new List<T>(stack.Count);
