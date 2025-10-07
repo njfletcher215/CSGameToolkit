@@ -10,6 +10,12 @@ Clone the repo into `res://addons/` (these are simply library files, so you can 
 git clone git@github.com:njfletcher215/CSGameToolkit.git addons/CSGameToolkit/
 ```
 
+## Provided Classes
+
+### Deck\<T>
+A deck of "cards", split into a library (draw pile), hand, and graveyard (discard pile).
+"Cards" can be of any type T.
+
 ## Questions or Issues?
 
 Feel free to open an issue on GitHub if something's not working or not clear.
