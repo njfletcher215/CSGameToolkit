@@ -176,14 +176,14 @@ public class Deck<T> {
     /// Shuffle the library.
     /// </summary>
     public void ShuffleLibrary() {
-        GameController.Shuffle(ref this.library);
+        Deck<T>.Shuffle(ref this.library);
     }
 
     /// <summary>
     /// Shuffle the graveyard.
     /// </summary>
     public void ShuffleGraveyard() {
-        GameController.Shuffle(ref this.graveyard);
+        Deck<T>.Shuffle(ref this.graveyard);
     }
 
     /// <summary>
