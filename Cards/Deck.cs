@@ -29,6 +29,10 @@ public class Deck<T> {
         foreach (T card in deckList) this.deckList.Add(card);
 
         this.handSize = handSize;
+
+        this.library = new Stack<T>(this.deckList);
+        this.hand = new List<T>();
+        this.graveyard = new Stack<T>();
     }
 
     /// <summary>
@@ -191,7 +195,7 @@ public class Deck<T> {
     }
 
     /// <summary>
-    /// Move all cards from the hand and graveyard to the library,
+    /// Move all cards from the graveyard (and optionally the hand) to the library,
     /// then shuffle the library.
     /// </summary>
     /// <param name="includeHand"><c>true</c> to scoop the hand as well as the graveyard, <c>false</c> to only scoop the graveyard.</param>
@@ -199,6 +203,14 @@ public class Deck<T> {
         if (includeHand) this.DiscardHand();
         this.library = this.graveyard;
         this.graveyard = new Stack<T>();
+    }
+
+    /// <summary>
+    /// Move all cards from the hand and graveyard to the library,
+    /// then shuffle the library.
+    /// </summary>
+    public void ResetDeck() {
+        this.Reset(includeHand: true);
     }
 
     /// <summary>
