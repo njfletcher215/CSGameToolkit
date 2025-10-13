@@ -125,7 +125,7 @@ public class Deck<T> {
     /// <param name="n">The number of cards to draw.</param>
     public void Draw(int n = 1) {
         while (n-- > 0) {
-            if (this.deckList.Count == 0) this.Reset(includeHand: false);
+            if (this.library.Count == 0) this.Reset(includeHand: false);
             this.hand.Add(this.library.Pop());
         }
     }
@@ -201,8 +201,9 @@ public class Deck<T> {
     /// <param name="includeHand"><c>true</c> to scoop the hand as well as the graveyard, <c>false</c> to only scoop the graveyard.</param>
     private void Reset(bool includeHand = true) {
         if (includeHand) this.DiscardHand();
-        this.library = this.graveyard;
+        this.library = new Stack<T>(this.library.Concat(this.graveyard));
         this.graveyard = new Stack<T>();
+        this.ShuffleLibrary();
     }
 
     /// <summary>
